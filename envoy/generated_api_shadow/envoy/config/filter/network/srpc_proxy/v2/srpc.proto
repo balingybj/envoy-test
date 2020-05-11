@@ -1,0 +1,150 @@
+syntax = "proto3";
+
+package envoy.config.filter.network.srpc_proxy.v2;
+
+import "google/protobuf/descriptor.proto";
+
+import "udpa/annotations/status.proto";
+import "udpa/annotations/versioning.proto";
+
+option java_package = "io.envoyproxy.envoy.config.filter.network.srpc_proxy.v2";
+option java_outer_classname = "SrpcProto";
+option java_multiple_files = true;
+option (udpa.annotations.file_status).package_version_status = ACTIVE;
+
+// 内嵌webview上报的附加数据
+enum OsType {
+  OS_START = 0;
+  OS_TYPE_WINDOWS = 10;
+  OS_TYPE_MAC = 11;
+  OS_TYPE_IOS = 12;
+  OS_TYPE_ANDROID = 13;
+}
+
+enum AppType {
+  APP_START = 0;
+  APP_TYPE_FTNN = 1;
+  APP_TYPE_WECHAT = 2;
+  APP_TYPE_QQ = 3;
+  APP_TYPE_SAFARI = 4;
+  APP_TYPE_CHROME = 5;
+  APP_TYPE_OPERA = 6;
+  APP_TYPE_IE = 7;
+  APP_TYPE_FTMM = 8;
+}
+
+// 鉴权信息定义
+message CSignKey {
+  uint32 type = 1;
+  // 签名类型
+
+  string skey = 2;
+  // 登录态的内容
+
+  string domain = 3;
+  // 登录态的domain
+
+  uint32 company_id = 4;
+  // esop 需要的公司id
+}
+
+message WebView {
+  uint32 os_type = 1;
+  // 实际来源的系统
+
+  uint32 app_type = 2;
+  // 来源浏览器或微信等
+
+  string version = 3;
+  // 完整的版本信息
+}
+
+// 标准的通用头定义
+// [#next-free-field: 30]
+message CRpcHead {
+  uint64 origin_uid = 1;
+  // 来源用户id信息 - 关联登录key信息 -可以是OA帐号
+
+  uint64 target_uid = 2;
+  // 被操作的用户id - 默认是牛牛号 - 可选, 为空则等价源ID
+
+  string staff_name = 3;
+  // 如果来源id是OA帐号, 则必须有员工名
+
+  uint64 session_id = 4;
+  // 用户会话id, conn登录分配
+
+  uint32 service_id = 5;
+  // 主命令字 服务id  cmdid
+
+  uint32 method_id = 6;
+  // 子命令字 方法id  service type
+
+  uint64 sequence = 7;
+  // 序列号, 上下文识别id
+
+  uint32 client_ipv4 = 8;
+  // 客户来源ip
+
+  uint32 client_port = 9;
+  // 客户来源port
+
+  uint32 client_type = 10;
+  // 客户类型
+
+  uint32 client_version = 11;
+  // 客户版本
+
+  uint32 client_lang = 12;
+  // 客户语言版本
+
+  uint32 client_seq = 13;
+  // 客户端序号
+
+  int32 result = 14;
+  // 返回码信息 <0系统错误 >0 业务失败
+
+  string result_msg = 15;
+  // 返回字符串提示
+
+  string method_name = 16;
+  // 可选支持按字符串访问rpc-默认为空 通常不需要填
+
+  CSignKey signature = 17;
+  // 登录态TOKEN
+
+  string device_id = 18;
+  // 设备ID
+
+  uint32 prot_ver = 19;
+  // 客户端协议版本号
+
+  // 2017/04/17 添加
+  uint32 server_ip = 20;
+  // 调用服务者的IP地址
+
+  bytes customized_data = 21;
+  // 自定义数据部分
+
+  // 2017/04/21 添加
+  WebView user_agent = 22;
+  // web用保存user_agent信息
+
+  // 2018/4/25
+  uint32 gray_flag = 23;
+  // 自定义开启灰度发布/预发布 0关闭 1开启：路由到灰度cmlb
+
+  // 2018/5/12 add for trace
+  bytes trace_id = 24;
+
+  bytes parent_id = 25;
+
+  bytes span_id = 26;
+
+  bool sampled = 27;
+
+  bool debug = 28;
+
+  // 2018/10/19 add for async trace
+  uint64 request_timestamp = 29;
+}
